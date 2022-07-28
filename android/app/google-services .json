@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "517755004013",
+    "project_id": "home-service-professional",
+    "storage_bucket": "home-service-professional.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:517755004013:android:3ca31bc4fa961ef21b0b64",
+        "android_client_info": {
+          "package_name": "com.example.homeprofessional"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "517755004013-udlsin2aq7j6ebt3efdom2q4eroba76c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDQiuvraJ6WMAc39QjDb9j2XrAfB61NzA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "517755004013-udlsin2aq7j6ebt3efdom2q4eroba76c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
