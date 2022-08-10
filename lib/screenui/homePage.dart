@@ -2,6 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:homeprofessional/models/service.dart';
+import 'package:homeprofessional/screenui/DocumentationTab.dart';
+import 'package:homeprofessional/screenui/createProfefssionalInfo.dart';
+import 'package:homeprofessional/screenui/ViewProfessionalInfo.dart';
+import 'package:homeprofessional/screenui/Cleaner.dart';
+import 'package:homeprofessional/screenui/GeneralInfoTab.dart';
+import 'package:homeprofessional/screenui/ProfessionalDataTab.dart';
+
 // import 'package:homeprofessional/animation/FadeAnimation.dart';
 
 import "package:firebase_core/firebase_core.dart";
@@ -15,7 +22,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Service> services = [
-    Service('Cleaning',
+    Service('Cleaner',
         'https://img.icons8.com/external-vitaliy-gorbachev-flat-vitaly-gorbachev/2x/external-cleaning-labour-day-vitaliy-gorbachev-flat-vitaly-gorbachev.png'),
     Service('Plumber',
         'https://img.icons8.com/external-vitaliy-gorbachev-flat-vitaly-gorbachev/2x/external-plumber-labour-day-vitaliy-gorbachev-flat-vitaly-gorbachev.png'),
@@ -50,7 +57,7 @@ class _HomePageState extends State<HomePage> {
   ];
   @override
   Widget build(BuildContext context) {
-    bool haveaccount=false;
+    bool haveaccount = false;
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
@@ -61,119 +68,122 @@ class _HomePageState extends State<HomePage> {
                 height: 25,
               ),
               Container(
-                padding: EdgeInsets.symmetric(vertical:15.0,horizontal:35.0),
+                padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 35.0),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
                       height: 150,
-                      padding: EdgeInsets.only(left: 20.0, top: 25.0, right: 20.0),
+                      padding:
+                          EdgeInsets.only(left: 20.0, top: 25.0, right: 20.0),
                       decoration: BoxDecoration(
                           color: Colors.white54,
-                          borderRadius: BorderRadius.circular(25.0)
-                      ),
-                    child: Row(
-                      children: [
-                    if (haveaccount) ...[
-                      ClipRRect(
-                          borderRadius: BorderRadius.circular(15.0),
-
-                          child: Image.network(
-                            'https://firebasestorage.googleapis.com/v0/b/bus-tracking-9720b.appspot.com/o/9810438054%2Fprofile.jpg?alt=media&token=7ed54af5-9911-4c4b-a626-87536b08b2c5',
-                            width:100,
-                          )),
-                      SizedBox(
-                        width:20,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                          borderRadius: BorderRadius.circular(25.0)),
+                      child: Row(
                         children: [
-
-                          Text(
-                            "Manish Neupane",
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize:20,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            "Electrician",
-                            style: TextStyle(
-                                color: Colors.black.withOpacity(0.7),
-                                fontSize: 18),
-                          ),
-                          SizedBox(
-                            height: 12,
-                          ),
-                          Container(
-                            height:50,
-                            width: 150,
-                            decoration: BoxDecoration(
-                                color: Colors.blue,
-                                borderRadius: BorderRadius.circular(15.0)),
-                            child: Center(
-                                child: TextButton(
-                                  onPressed: () {},
-                                  child:Text(
-                                    'View Profile',
-                                    style: TextStyle(color: Colors.white, fontSize: 14),
-                                  ),
-                                )
+                          if (haveaccount) ...[
+                            ClipRRect(
+                                borderRadius: BorderRadius.circular(15.0),
+                                child: Image.network(
+                                  'https://firebasestorage.googleapis.com/v0/b/bus-tracking-9720b.appspot.com/o/9810438054%2Fprofile.jpg?alt=media&token=7ed54af5-9911-4c4b-a626-87536b08b2c5',
+                                  width: 100,
+                                )),
+                            SizedBox(
+                              width: 20,
                             ),
-                          ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Manish Neupane",
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Text(
+                                  "Electrician",
+                                  style: TextStyle(
+                                      color: Colors.black.withOpacity(0.7),
+                                      fontSize: 18),
+                                ),
+                                SizedBox(
+                                  height: 12,
+                                ),
+                                Container(
+                                  height: 50,
+                                  width: 150,
+                                  decoration: BoxDecoration(
+                                      color: Colors.blue,
+                                      borderRadius:
+                                          BorderRadius.circular(15.0)),
+                                  child: Center(
+                                      child: TextButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ViewProfessionalInfo()));
+                                    },
+                                    child: Text(
+                                      'View Profile',
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 14),
+                                    ),
+                                  )),
+                                ),
+                              ],
+                            ),
+                          ] else ...[
+                            // Padding(padding: EdgeInsets.only(left:0,right:0),child:
+                            Container(
+                              height: 60,
+                              width: 250,
+                              // padding: EdgeInsets.only(left:35),
+                              decoration: BoxDecoration(
+                                  color: Colors.blue,
+                                  borderRadius: BorderRadius.circular(15.0)),
+                              child: Center(
+                                child: TextButton(
+                                    onPressed: () {
+                                      print("New Profile");
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  DocumentationTab(contact_number: 9810438054,)));
+                                    },
+                                    child: Row(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(2.0),
+                                          child: CircleAvatar(
+                                              backgroundImage: AssetImage(
+                                            "assets/useraccount.png",
+                                          )),
+                                        ),
+                                        SizedBox(
+                                          width: 15,
+                                        ),
+                                        Text(
+                                          'CREATE PROFILE',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18),
+                                        ),
+                                      ],
+                                    )),
+                              ),
+                            ),
+                            // ),
+                          ]
                         ],
                       ),
-
-                    ]
-                    else ...[
-                      // Padding(padding: EdgeInsets.only(left:0,right:0),child:
-                      Container(
-                        height:60,
-                        width:250,
-                        // padding: EdgeInsets.only(left:35),
-                        decoration: BoxDecoration(
-                            color: Colors.blue,
-                            borderRadius: BorderRadius.circular(15.0)),
-                        child: Center(
-                          child: TextButton(
-                            onPressed: ()
-                            {
-                              print("New Profile");
-                            },
-                            child:Row
-                              (
-                               children: [
-                                 Padding(
-                                   padding: const EdgeInsets.all(2.0),
-                                   child: CircleAvatar(
-                                     backgroundImage: NetworkImage(
-                                       'https://cdn-icons.flaticon.com/png/512/3899/premium/3899618.png?token=exp=1658999407~hmac=1ecc9808dfd4eabbbc00a4568e10a3e4'
-                                         // 'https://img.icons8.com/material/344/user.png'
-                                     ),
-                                   ),
-                                 ),
-                            SizedBox(
-                              width: 15,
-                            ),
-
-                            Text(
-                                  'CREATE PROFILE',
-                                  style: TextStyle(color: Colors.white, fontSize:18),
-                                ),
-
-                               ],
-                            )
-                          ),
-                        ),
-                      ),
-                      // ),
-                    ]
-                      ],
-      ),
-    ),
+                    ),
                   ],
                 ),
 
@@ -197,7 +207,7 @@ class _HomePageState extends State<HomePage> {
                 //     ),
                 //    ],
                 // ),
-               ),
+              ),
               // Padding(
               //   padding: EdgeInsets.only(left: 20.0, top: 10.0, right: 10.0),
               //   child: Row(
@@ -234,7 +244,7 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                                            SizedBox(
+                      SizedBox(
                         height: 20,
                       ),
                       Padding(
@@ -253,7 +263,7 @@ class _HomePageState extends State<HomePage> {
                                   'View all',
                                   style: TextStyle(
                                       color: Colors.blueAccent,
-                                      fontSize:16,
+                                      fontSize: 16,
                                       fontWeight: FontWeight.bold),
                                 ))
                           ],
@@ -262,7 +272,7 @@ class _HomePageState extends State<HomePage> {
                       Container(
                         padding:
                             EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                        height:300,
+                        height: 300,
                         child: GridView.builder(
                             gridDelegate:
                                 SliverGridDelegateWithFixedCrossAxisCount(
@@ -330,30 +340,36 @@ class _HomePageState extends State<HomePage> {
 
   serviceContainer(String image, String name, int index) {
     return GestureDetector(
-      child: Container(
-        margin: EdgeInsets.only(right: 8),
-        padding: EdgeInsets.all(10.0),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade100,
-          border: Border.all(
-            color: Colors.blue.withOpacity(0),
-            width: 2.0,
-          ),
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Image.network(image, height: 30),
-              SizedBox(
-                height: 20,
+      child: TextButton(
+          onPressed: () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => Cleaner()));
+            print(name);
+          },
+          child: Container(
+            margin: EdgeInsets.only(right: 3),
+            padding: EdgeInsets.all(5.0),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              border: Border.all(
+                color: Colors.blue.withOpacity(0),
+                width: 2.0,
               ),
-              Text(
-                name,
-                style: TextStyle(fontSize: 12),
-              )
-            ]),
-      ),
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Image.network(image, height: 30),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Text(
+                    name,
+                    style: TextStyle(fontSize: 12),
+                  )
+                ]),
+          )),
     );
   }
 
