@@ -6,3 +6,8 @@ class Gender {
   bool isSelected;
   Gender(this.name, this.icon, this.isSelected);
 }
+
+class ProfileImage {
+  String imageurl;
+  ProfileImage(this.imageurl);
+}

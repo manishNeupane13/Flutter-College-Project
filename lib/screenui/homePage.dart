@@ -1,11 +1,15 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:homeprofessional/models/gender.dart';
 import 'package:homeprofessional/models/service.dart';
-import 'package:homeprofessional/screenui/DocumentationTab.dart';
-import 'package:homeprofessional/screenui/createProfefssionalInfo.dart';
 import 'package:homeprofessional/screenui/ViewProfessionalInfo.dart';
+import 'package:homeprofessional/screenui/DocumentationTab.dart';
 import 'package:homeprofessional/screenui/Cleaner.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:homeprofessional/screenui/GeneralInfoTab.dart';
 import 'package:homeprofessional/screenui/ProfessionalDataTab.dart';
 
@@ -14,13 +18,23 @@ import 'package:homeprofessional/screenui/ProfessionalDataTab.dart';
 import "package:firebase_core/firebase_core.dart";
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final haveaccount;
+  const HomePage({Key? key, required this.haveaccount}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  String? _imageurl;
+  final _databaseRef = FirebaseFirestore.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    // _getinformation();
+  }
+
   List<Service> services = [
     Service('Cleaner',
         'https://img.icons8.com/external-vitaliy-gorbachev-flat-vitaly-gorbachev/2x/external-cleaning-labour-day-vitaliy-gorbachev-flat-vitaly-gorbachev.png'),
@@ -81,38 +95,104 @@ class _HomePageState extends State<HomePage> {
                           borderRadius: BorderRadius.circular(25.0)),
                       child: Row(
                         children: [
-                          if (haveaccount) ...[
-                            ClipRRect(
-                                borderRadius: BorderRadius.circular(15.0),
-                                child: Image.network(
-                                  'https://firebasestorage.googleapis.com/v0/b/bus-tracking-9720b.appspot.com/o/9810438054%2Fprofile.jpg?alt=media&token=7ed54af5-9911-4c4b-a626-87536b08b2c5',
-                                  width: 100,
-                                )),
-                            SizedBox(
-                              width: 20,
-                            ),
+                          if (widget.haveaccount) ...[
+                            FutureBuilder(
+                                future: _getProfileImage(),
+                                builder: (context, AsyncSnapshot snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  }
+                                  return ClipRRect(
+                                      borderRadius: BorderRadius.circular(15.0),
+                                      child: Image.network(
+                                        snapshot.data.toString(),
+                                        // 'https://firebasestorage.googleapis.com/v0/b/bus-tracking-9720b.appspot.com/o/9810438054%2Fprofile.jpg?alt=media&token=7ed54af5-9911-4c4b-a626-87536b08b2c5',
+                                        width: 100,
+                                      ));
+                                }),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Text(
-                                  "Manish Neupane",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold),
-                                ),
+                                StreamBuilder(
+                                    stream: _databaseRef
+                                        .collection("Personal Information")
+                                        .doc("9810438054")
+                                        .snapshots(),
+                                    builder: ((context,
+                                        AsyncSnapshot<DocumentSnapshot>
+                                            streamSnapshot) {
+                                      if (streamSnapshot.hasError) {
+                                        return const Text(
+                                            "Something went Wrong");
+                                      }
+                                      if (streamSnapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return Text("Loading");
+                                      }
+                                      if (streamSnapshot.hasData) {
+                                        print(streamSnapshot.data!
+                                            .get(FieldPath.fromString(
+                                                "User Name"))
+                                            .toString());
+                                        return Text(
+                                            streamSnapshot.data!
+                                                .get(FieldPath.fromString(
+                                                    "User Name"))
+                                                .toString(),
+                                            style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold));
+                                      }
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    })),
                                 SizedBox(
                                   height: 5,
                                 ),
-                                Text(
-                                  "Electrician",
-                                  style: TextStyle(
-                                      color: Colors.black.withOpacity(0.7),
-                                      fontSize: 18),
-                                ),
-                                SizedBox(
-                                  height: 12,
-                                ),
+                                StreamBuilder(
+                                    stream: _databaseRef
+                                        .collection("Professional Information")
+                                        .doc("9810438054")
+                                        .snapshots(),
+                                    builder: ((context,
+                                        AsyncSnapshot<DocumentSnapshot>
+                                            streamSnapshot) {
+                                      if (streamSnapshot.hasError) {
+                                        return const Text(
+                                            "Something went Wrong");
+                                      }
+                                      if (streamSnapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return Text("Loading");
+                                      }
+                                      if (streamSnapshot.hasData) {
+                                        // print(streamSnapshot.data!
+                                        //     .get(FieldPath.fromString(
+                                        //         ""))
+                                        //     .toString());
+                                        return Text(
+                                            streamSnapshot.data!
+                                                .get(FieldPath.fromString(
+                                                    "Service Type"))
+                                                .toString(),
+                                            style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold));
+                                      }
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    })),
+                                    SizedBox(
+                                      height: 15,
+                                    ),
+                            
                                 Container(
                                   height: 50,
                                   width: 150,
@@ -155,7 +235,7 @@ class _HomePageState extends State<HomePage> {
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  DocumentationTab(contact_number: 9810438054,)));
+                                                  GeneralInfoTab()));
                                     },
                                     child: Row(
                                       children: [
@@ -338,13 +418,19 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<String> _getProfileImage() async {
+    String _imageurl = await FirebaseStorage.instance
+        .ref("9810438054/profile")
+        .getDownloadURL();
+    ProfileImage(_imageurl);
+    return _imageurl;
+  }
+
   serviceContainer(String image, String name, int index) {
     return GestureDetector(
       child: TextButton(
           onPressed: () {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => Cleaner()));
-            print(name);
+            Navigator.pushNamed(context, name.toString());
           },
           child: Container(
             margin: EdgeInsets.only(right: 3),

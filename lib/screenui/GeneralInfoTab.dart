@@ -322,80 +322,7 @@ class _GeneralInfoTabState extends State<GeneralInfoTab> {
                         border: Border.all(
                             color: Colors.grey.shade700, width: 2.0)),
                     child: TextButton(
-                        onPressed: (() {
-                          final user_name = _userName.text.trim();
-                          final number = _userNumber.text.trim();
-                          final dob = _dateOfBirth.toString();
-                          final gender_val = gender.toString();
-                          final province_name = _provinceName.toString();
-                          final district_name = _districtName.toString();
-                          final zone_name = _zoneName.toString();
-                          final city_name = _cityName.toString();
-                          print(number);
-// storing personal details
-                          if (user_name.isNotEmpty &&
-                              number.isNotEmpty &&
-                              dob.isNotEmpty &&
-                              gender_val.isNotEmpty) {
-                            FirebaseFirestore.instance
-                                .collection("Personal Information")
-                                .doc(number)
-                                .set({
-                                  "User Name": user_name,
-                                  "Contact Number": number,
-                                  "Date of Birth": dob,
-                                  "Gender": gender_val
-                                })
-                                .then((value) => Fluttertoast.showToast(
-                                    msg: "Information Storage Sucessfull.",
-                                    backgroundColor: Colors.teal,
-                                    textColor: Colors.white,
-                                    gravity: ToastGravity.BOTTOM,
-                                    fontSize: 12))
-                                .onError((error, stackTrace) =>
-                                    Fluttertoast.showToast(
-                                        msg:
-                                            "Information Storage UnSucessfull.",
-                                        backgroundColor: Colors.teal,
-                                        textColor: Colors.white,
-                                        gravity: ToastGravity.BOTTOM,
-                                        fontSize: 12));
-                            // storing address
-                          }
-                          if (number.isNotEmpty&& province_name.isNotEmpty &&
-                              district_name.isNotEmpty &&
-                              zone_name.isNotEmpty &&
-                              city_name.isNotEmpty) {
-                            FirebaseFirestore.instance
-                                .collection("Address Information")
-                                .doc(number)
-                                .set({
-                              "Province": province_name,
-                              "Zone": zone_name,
-                              "District": district_name,
-                              "City": city_name
-                            }).then((value) {
-                              Fluttertoast.showToast(
-                                  msg: "Information Storage Sucessfull.",
-                                  backgroundColor: Colors.teal,
-                                  textColor: Colors.white,
-                                  gravity: ToastGravity.BOTTOM,
-                                  fontSize: 12);
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => ProfessionalDataTab(
-                                          contact_number: number)));
-                            }).onError((error, stackTrace) {
-                              Fluttertoast.showToast(
-                                  msg: "Information Storage UnSucessfull.",
-                                  backgroundColor: Colors.teal,
-                                  textColor: Colors.white,
-                                  gravity: ToastGravity.BOTTOM,
-                                  fontSize: 12);
-                            });
-                          }
-                        }),
+                        onPressed: storeGeneralInfo,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -454,5 +381,93 @@ class _GeneralInfoTabState extends State<GeneralInfoTab> {
         ],
       ),
     );
+  }
+
+  storeGeneralInfo() {
+    final user_name = _userName.text.trim();
+    final number = _userNumber.text.trim();
+    final dob = _dateOfBirth.toString();
+    final gender_val = gender.toString();
+    final province_name = _provinceName.toString();
+    final district_name = _districtName.toString();
+    final zone_name = _zoneName.toString();
+    final city_name = _cityName.toString();
+    // print(number);
+// storing personal details
+    if (user_name.isNotEmpty &&
+        number.isNotEmpty &&
+        dob.isNotEmpty &&
+        gender_val.isNotEmpty) {
+      FirebaseFirestore.instance
+          .collection("Personal Information")
+          .doc(number)
+          .set({
+            "User Name": user_name,
+            "Contact Number": number,
+            "Date of Birth": dob,
+            "Gender": gender_val
+          })
+          .then((value) => Fluttertoast.showToast(
+              msg: "Information Storage Sucessfull.",
+              backgroundColor: Colors.teal,
+              textColor: Colors.white,
+              gravity: ToastGravity.BOTTOM,
+              fontSize: 12))
+          .onError((error, stackTrace) => Fluttertoast.showToast(
+              msg: "Information Storage UnSucessfull.",
+              backgroundColor: Colors.teal,
+              textColor: Colors.white,
+              gravity: ToastGravity.BOTTOM,
+              fontSize: 12));
+      // storing address
+    } else {
+      Fluttertoast.showToast(
+          msg: "Enter Necessary Information",
+          backgroundColor: Colors.teal,
+          textColor: Colors.white,
+          gravity: ToastGravity.BOTTOM,
+          fontSize: 12);
+    }
+    if (number.isNotEmpty &&
+        province_name.isNotEmpty &&
+        district_name.isNotEmpty &&
+        zone_name.isNotEmpty &&
+        city_name.isNotEmpty) {
+      FirebaseFirestore.instance
+          .collection("Address Information")
+          .doc(number)
+          .set({
+        "Province": province_name,
+        "Zone": zone_name,
+        "District": district_name,
+        "City": city_name
+      }).then((value) {
+        Fluttertoast.showToast(
+            msg: "Information Storage Sucessfull.",
+            backgroundColor: Colors.teal,
+            textColor: Colors.white,
+            gravity: ToastGravity.BOTTOM,
+            fontSize: 12);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    ProfessionalDataTab(contact_number: number)));
+      }).onError((error, stackTrace) {
+        Fluttertoast.showToast(
+            msg: "Information Storage UnSucessfull.",
+            backgroundColor: Colors.teal,
+            textColor: Colors.white,
+            gravity: ToastGravity.BOTTOM,
+            fontSize: 12);
+      });
+    } else {
+      Fluttertoast.showToast(
+          msg: "Enter Necessary Information",
+          backgroundColor: Colors.teal,
+          textColor: Colors.white,
+          gravity: ToastGravity.BOTTOM,
+          fontSize: 12);
+    }
   }
 }

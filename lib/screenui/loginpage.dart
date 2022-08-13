@@ -14,6 +14,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final contact_number = TextEditingController();
   @override
   void dispose() {
     emailController.dispose();
@@ -45,6 +46,33 @@ class _LoginPageState extends State<LoginPage> {
                         child: Column(
                           children: [
                             TextField(
+                              style: TextStyle(color: Colors.black),
+                              keyboardType: TextInputType.phone,
+                              controller: contact_number,
+                              decoration: InputDecoration(
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  hintText: "Contact Number",
+                                  prefixIcon: Icon(Icons.phone),
+                                  fillColor: Colors.grey.shade100,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  )),
+                            ),
+                            SizedBox(
+                              height: 30,
+                            ),
+                            TextField(
                               controller: emailController,
                               style: TextStyle(color: Colors.black),
                               decoration: InputDecoration(
@@ -60,6 +88,7 @@ class _LoginPageState extends State<LoginPage> {
                               height: 30,
                             ),
                             TextField(
+                              keyboardType: TextInputType.number,
                               controller: passwordController,
                               style: TextStyle(),
                               obscureText: true,
@@ -89,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
                                   backgroundColor: Color(0xff4c505b),
                                   child: IconButton(
                                       color: Colors.white,
-                                      onPressed: SignIn,
+                                      onPressed: verifyPhoneNumber,
                                       icon: Icon(
                                         Icons.arrow_forward,
                                       )),
@@ -176,31 +205,111 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  verifyPhoneNumber() async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    if (contact_number.text.isNotEmpty && passwordController.text.isNotEmpty) {
+      await auth.verifyPhoneNumber(
+        phoneNumber: '+44 7123 123 456',
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          await auth.signInWithCredential(credential);
+          Fluttertoast.showToast(
+              msg: "You are logged in sucessfully",
+              backgroundColor: Colors.teal,
+              textColor: Colors.white,
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              fontSize: 12);
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          if (e.code == 'invalid-phone-number') {
+            Fluttertoast.showToast(
+                msg: "The provided phone number is not valid.",
+                backgroundColor: Colors.teal,
+                textColor: Colors.white,
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                fontSize: 12);
+          }
+        },
+        codeSent: (String verificationId, int? resendToken) async {
+          // String smsCode = '123456';
+
+          // Create a PhoneAuthCredential with the code
+          PhoneAuthCredential credential = PhoneAuthProvider.credential(
+              verificationId: verificationId,
+              smsCode: passwordController.text.trim());
+
+          // Sign the user in (or link) with the credential
+          await auth.signInWithCredential(credential);
+        },
+        timeout: const Duration(seconds: 60),
+        codeAutoRetrievalTimeout: (String verificationId) {},
+      );
+    }
+  }
+  // void verifyOTP() async{
+  //   PhoneAuthCredential credential PhoneAuthProvider.credential(verificationId: verificationID, smsCode: passwordController.text.trim())
+  // }
+
   SignIn() {
-    FirebaseAuth.instance
-        .signInWithEmailAndPassword(
-      email: emailController.text.trim(),
-      password: passwordController.text.trim(),
-    )
-        .then((value) {
-      Fluttertoast.showToast(
-          msg: "Login Sucessfull",
-          backgroundColor: Colors.teal,
-          textColor: Colors.white,
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          fontSize: 12);
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => HomePage()));
-    }).onError((error, stackTrace) {
-      print(error.toString());
-      Fluttertoast.showToast(
-          msg: "Login Unsucessfull",
-          backgroundColor: Colors.teal,
-          textColor: Colors.white,
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          fontSize: 12);
-    });
+    if (contact_number.text.isNotEmpty &&
+        emailController.text.isNotEmpty &&
+        passwordController.text.isNotEmpty) {
+      FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      )
+          .then((value) {
+        Fluttertoast.showToast(
+            msg: "Login Sucessfull",
+            backgroundColor: Colors.teal,
+            textColor: Colors.white,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            fontSize: 12);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const HomePage(
+                      haveaccount: false,
+                    )));
+      }).onError((error, stackTrace) {
+        print(error.toString());
+        Fluttertoast.showToast(
+            msg: "Login Unsucessfull",
+            backgroundColor: Colors.teal,
+            textColor: Colors.white,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            fontSize: 12);
+      });
+    } else {
+      if (emailController.text.isEmpty) {
+        Fluttertoast.showToast(
+            msg: "E-mail Required",
+            backgroundColor: Colors.teal,
+            textColor: Colors.white,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            fontSize: 12);
+      } else if (passwordController.text.isEmpty) {
+        Fluttertoast.showToast(
+            msg: "Password Required",
+            backgroundColor: Colors.teal,
+            textColor: Colors.white,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            fontSize: 12);
+      } else if (contact_number.text.isEmpty) {
+        Fluttertoast.showToast(
+            msg: "Phone Number Required",
+            backgroundColor: Colors.teal,
+            textColor: Colors.white,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            fontSize: 12);
+      }
+    }
   }
 }

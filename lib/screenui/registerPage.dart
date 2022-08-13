@@ -14,6 +14,7 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final contact_number = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,6 +49,33 @@ class _RegisterPageState extends State<RegisterPage> {
                         margin: EdgeInsets.only(left: 35, right: 35),
                         child: Column(
                           children: [
+                            TextField(
+                              style: TextStyle(color: Colors.white),
+                              keyboardType: TextInputType.phone,
+                              controller: contact_number,
+                              decoration: InputDecoration(
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  hintText: "Contact Number",
+                                  prefixIcon: Icon(Icons.phone),
+                                  hintStyle: TextStyle(color: Colors.white),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  )),
+                            ),
+                            SizedBox(
+                              height: 30,
+                            ),
                             TextField(
                               style: TextStyle(color: Colors.white),
                               controller: emailController,
@@ -160,8 +188,12 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Register() {
-    if (emailController.text.isNotEmpty && passwordController.text.isNotEmpty) {
+    if (contact_number.text.isNotEmpty &&
+        emailController.text.isNotEmpty &&
+        passwordController.text.isNotEmpty) {
       try {
+        print("contact Number");
+        
         FirebaseAuth.instance
             .createUserWithEmailAndPassword(
                 email: emailController.text.trim(),
@@ -206,6 +238,19 @@ class _RegisterPageState extends State<RegisterPage> {
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
             fontSize: 12);
+      }
+      else if(
+        contact_number.text.isEmpty
+      )
+      {
+           Fluttertoast.showToast(
+            msg: "Phone Number Required",
+            backgroundColor: Colors.teal,
+            textColor: Colors.white,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            fontSize: 12);
+        
       }
     }
   }

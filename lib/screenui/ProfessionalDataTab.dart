@@ -171,50 +171,7 @@ class _ProfessionalDataTabState extends State<ProfessionalDataTab> {
                         border: Border.all(
                             color: Colors.grey.shade700, width: 2.0)),
                     child: TextButton(
-                        onPressed: (() {
-                          final location_name = _serviceLocation.toString();
-                          final experience_year = _experienceYear.text.trim();
-                          final service_price = _servicePrice.text.trim();
-                          final service_provided = _serviceProvided.toString();
-                          print(
-                              '$location_name,$experience_year,$service_provided,$service_price');
-                          if (location_name.isNotEmpty &&
-                              experience_year.isNotEmpty &&
-                              service_price.isNotEmpty &&
-                              service_provided.isNotEmpty) {
-                            FirebaseFirestore.instance
-                                .collection("Professional Information")
-                                .doc(widget.contact_number)
-                                .set({
-                              'Service Type': service_provided,
-                              "Location": location_name,
-                              "Price": service_price,
-                              "Experience": experience_year
-                            }).then((value) {
-                              Fluttertoast.showToast(
-                                  msg: "Information Storage Sucessfull.",
-                                  backgroundColor: Colors.teal,
-                                  textColor: Colors.white,
-                                  gravity: ToastGravity.BOTTOM,
-                                  fontSize: 12);
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => DocumentationTab(
-                                          contact_number:
-                                              widget.contact_number)));
-                            }).onError((error, stackTrace) {
-                              print(error);
-                            });
-                          } else {
-                            Fluttertoast.showToast(
-                                msg: "Enter all Information.",
-                                backgroundColor: Colors.teal,
-                                textColor: Colors.white,
-                                gravity: ToastGravity.BOTTOM,
-                                fontSize: 12);
-                          }
-                        }),
+                        onPressed: storeProfessionalInfo,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -236,5 +193,49 @@ class _ProfessionalDataTabState extends State<ProfessionalDataTab> {
             ),
           ),
         ));
+  }
+  storeProfessionalInfo()
+  {
+     final location_name = _serviceLocation.toString();
+    final experience_year = _experienceYear.text.trim();
+    final service_price = _servicePrice.text.trim();
+    final service_provided = _serviceProvided.toString();
+    print('$location_name,$experience_year,$service_provided,$service_price');
+    if (location_name.isNotEmpty &&
+        experience_year.isNotEmpty &&
+        service_price.isNotEmpty &&
+        service_provided.isNotEmpty) {
+      FirebaseFirestore.instance
+          .collection("Professional Information")
+          .doc(widget.contact_number)
+          .set({
+        'Service Type': service_provided,
+        "Location": location_name,
+        "Price": service_price,
+        "Experience": experience_year
+      }).then((value) {
+        Fluttertoast.showToast(
+            msg: "Information Storage Sucessfull.",
+            backgroundColor: Colors.teal,
+            textColor: Colors.white,
+            gravity: ToastGravity.BOTTOM,
+            fontSize: 12);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    DocumentationTab(contact_number: widget.contact_number)));
+      }).onError((error, stackTrace) {
+        print(error);
+      });
+    } else {
+      Fluttertoast.showToast(
+          msg: "Enter all Information.",
+          backgroundColor: Colors.teal,
+          textColor: Colors.white,
+          gravity: ToastGravity.BOTTOM,
+          fontSize: 12);
+    }
+
   }
 }
