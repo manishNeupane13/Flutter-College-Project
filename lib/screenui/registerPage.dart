@@ -14,7 +14,15 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final contact_number = TextEditingController();
+  final _phone_number = TextEditingController();
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    _phone_number.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +60,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             TextField(
                               style: TextStyle(color: Colors.white),
                               keyboardType: TextInputType.phone,
-                              controller: contact_number,
+                              controller: _phone_number,
                               decoration: InputDecoration(
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
@@ -144,7 +152,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   backgroundColor: Color(0xff4c505b),
                                   child: IconButton(
                                       color: Colors.white,
-                                      onPressed: Register,
+                                      onPressed: verifyPhoneNumber,
                                       icon: Icon(
                                         Icons.arrow_forward,
                                       )),
@@ -187,13 +195,59 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
+  verifyPhoneNumber() async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    if (_phone_number.text.isNotEmpty && passwordController.text.isNotEmpty) {
+      await auth.verifyPhoneNumber(
+        phoneNumber: _phone_number.text,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          await auth.signInWithCredential(credential);
+          Fluttertoast.showToast(
+              msg: "You are logged in sucessfully",
+              backgroundColor: Colors.teal,
+              textColor: Colors.white,
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              fontSize: 12);
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          if (e.code == 'invalid-phone-number') {
+            Fluttertoast.showToast(
+                msg: "The provided phone number is not valid.",
+                backgroundColor: Colors.teal,
+                textColor: Colors.white,
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                fontSize: 12);
+          }
+        },
+        codeSent: (String verificationId, int? resendToken) async {
+          // String smsCode = '123456';
+
+          // Create a PhoneAuthCredential with the code
+          PhoneAuthCredential credential = PhoneAuthProvider.credential(
+              verificationId: verificationId, smsCode: passwordController.text);
+          print(verificationId);
+          // passwordController.text.trim());
+
+          // Sign the user in (or link) with the credential
+          await auth.signInWithCredential(credential);
+        },
+        timeout: const Duration(seconds: 30),
+        codeAutoRetrievalTimeout: (String verificationId) {
+          print("Time out");
+        },
+      );
+    }
+  }
+
   Register() {
-    if (contact_number.text.isNotEmpty &&
+    if (_phone_number.text.isNotEmpty &&
         emailController.text.isNotEmpty &&
         passwordController.text.isNotEmpty) {
       try {
         print("contact Number");
-        
+
         FirebaseAuth.instance
             .createUserWithEmailAndPassword(
                 email: emailController.text.trim(),
@@ -238,19 +292,14 @@ class _RegisterPageState extends State<RegisterPage> {
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
             fontSize: 12);
-      }
-      else if(
-        contact_number.text.isEmpty
-      )
-      {
-           Fluttertoast.showToast(
+      } else if (_phone_number.text.isEmpty) {
+        Fluttertoast.showToast(
             msg: "Phone Number Required",
             backgroundColor: Colors.teal,
             textColor: Colors.white,
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
             fontSize: 12);
-        
       }
     }
   }

@@ -4,22 +4,24 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:homeprofessional/models/gender.dart';
 import 'package:homeprofessional/models/service.dart';
 import 'package:homeprofessional/screenui/ViewProfessionalInfo.dart';
 import 'package:homeprofessional/screenui/DocumentationTab.dart';
 import 'package:homeprofessional/screenui/Cleaner.dart';
+import 'package:homeprofessional/screenui/loginpage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:homeprofessional/screenui/GeneralInfoTab.dart';
 import 'package:homeprofessional/screenui/ProfessionalDataTab.dart';
-
-// import 'package:homeprofessional/animation/FadeAnimation.dart';
 
 import "package:firebase_core/firebase_core.dart";
 
 class HomePage extends StatefulWidget {
   final haveaccount;
-  const HomePage({Key? key, required this.haveaccount}) : super(key: key);
+  final String contact_number;
+
+  const HomePage(
+      {Key? key, required this.haveaccount, required this.contact_number})
+      : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -27,12 +29,27 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String? _imageurl;
-  final _databaseRef = FirebaseFirestore.instance;
+  bool? _professionalProfileExist;
 
+  final _databaseRef = FirebaseFirestore.instance;
   @override
   void initState() {
     super.initState();
-    // _getinformation();
+
+    FirebaseFirestore.instance
+        .collection("Professional Information")
+        .doc(widget.contact_number)
+        .get()
+        .then((value) {
+      if (value.exists) {
+        _professionalProfileExist = value.exists;
+        // return _professionalProfileExist;
+      } else {
+        _professionalProfileExist = value.exists;
+      }
+    }).onError((error, stackTrace) {
+      _professionalProfileExist = false;
+    });
   }
 
   List<Service> services = [
@@ -71,8 +88,37 @@ class _HomePageState extends State<HomePage> {
   ];
   @override
   Widget build(BuildContext context) {
-    bool haveaccount = false;
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.teal,
+        automaticallyImplyLeading: false,
+        actions: [
+
+        
+        
+         Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(vertical:1,horizontal: 5),
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const LoginPage()),
+                        (route) => false);
+                  },
+                  icon: Icon(
+                    Icons.logout_sharp,
+                    color: Colors.deepOrange,
+                  ),
+                ),
+              ),
+            ]),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Container(
           decoration: BoxDecoration(color: Colors.teal),
@@ -109,7 +155,6 @@ class _HomePageState extends State<HomePage> {
                                       borderRadius: BorderRadius.circular(15.0),
                                       child: Image.network(
                                         snapshot.data.toString(),
-                                        // 'https://firebasestorage.googleapis.com/v0/b/bus-tracking-9720b.appspot.com/o/9810438054%2Fprofile.jpg?alt=media&token=7ed54af5-9911-4c4b-a626-87536b08b2c5',
                                         width: 100,
                                       ));
                                 }),
@@ -119,7 +164,7 @@ class _HomePageState extends State<HomePage> {
                                 StreamBuilder(
                                     stream: _databaseRef
                                         .collection("Personal Information")
-                                        .doc("9810438054")
+                                        .doc(widget.contact_number)
                                         .snapshots(),
                                     builder: ((context,
                                         AsyncSnapshot<DocumentSnapshot>
@@ -133,10 +178,6 @@ class _HomePageState extends State<HomePage> {
                                         return Text("Loading");
                                       }
                                       if (streamSnapshot.hasData) {
-                                        print(streamSnapshot.data!
-                                            .get(FieldPath.fromString(
-                                                "User Name"))
-                                            .toString());
                                         return Text(
                                             streamSnapshot.data!
                                                 .get(FieldPath.fromString(
@@ -154,45 +195,47 @@ class _HomePageState extends State<HomePage> {
                                 SizedBox(
                                   height: 5,
                                 ),
-                                StreamBuilder(
-                                    stream: _databaseRef
-                                        .collection("Professional Information")
-                                        .doc("9810438054")
-                                        .snapshots(),
-                                    builder: ((context,
-                                        AsyncSnapshot<DocumentSnapshot>
-                                            streamSnapshot) {
-                                      if (streamSnapshot.hasError) {
-                                        return const Text(
-                                            "Something went Wrong");
-                                      }
-                                      if (streamSnapshot.connectionState ==
-                                          ConnectionState.waiting) {
-                                        return Text("Loading");
-                                      }
-                                      if (streamSnapshot.hasData) {
-                                        // print(streamSnapshot.data!
-                                        //     .get(FieldPath.fromString(
-                                        //         ""))
-                                        //     .toString());
-                                        return Text(
-                                            streamSnapshot.data!
-                                                .get(FieldPath.fromString(
-                                                    "Service Type"))
-                                                .toString(),
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold));
-                                      }
-                                      return const Center(
-                                        child: CircularProgressIndicator(),
-                                      );
-                                    })),
-                                    SizedBox(
-                                      height: 15,
-                                    ),
-                            
+                                if (_professionalProfileExist == true) ...[
+                                  StreamBuilder(
+                                      stream: _databaseRef
+                                          .collection(
+                                              "Professional Information")
+                                          .doc(widget.contact_number)
+                                          .snapshots(),
+                                      builder: ((context,
+                                          AsyncSnapshot<DocumentSnapshot>
+                                              streamSnapshot) {
+                                        if (streamSnapshot.hasError) {
+                                          return const Text(
+                                              "Something went Wrong");
+                                        }
+                                        if (streamSnapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return Text("Loading");
+                                        }
+                                        if (streamSnapshot.hasData) {
+                                          // print(streamSnapshot.data!
+                                          //     .get(FieldPath.fromString(
+                                          //         ""))
+                                          //     .toString());
+                                          return Text(
+                                              streamSnapshot.data!
+                                                  .get(FieldPath.fromString(
+                                                      "Service Type"))
+                                                  .toString(),
+                                              style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold));
+                                        }
+                                        return const Center(
+                                          child: CircularProgressIndicator(),
+                                        );
+                                      })),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+                                ],
                                 Container(
                                   height: 50,
                                   width: 150,
@@ -207,7 +250,12 @@ class _HomePageState extends State<HomePage> {
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  ViewProfessionalInfo()));
+                                                  ViewProfessionalInfo(
+                                                    haveaccount:
+                                                        _professionalProfileExist!,
+                                                    contact_number:
+                                                        widget.contact_number,
+                                                  )));
                                     },
                                     child: Text(
                                       'View Profile',
@@ -230,7 +278,7 @@ class _HomePageState extends State<HomePage> {
                               child: Center(
                                 child: TextButton(
                                     onPressed: () {
-                                      print("New Profile");
+                                      // print("New Profile");
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -266,46 +314,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: [
-                //     Padding(
-                //       padding: const EdgeInsets.all(10.0),
-                //       child: CircleAvatar(
-                //         backgroundImage: NetworkImage(
-                //             'https://img.icons8.com/material/344/user.png'),
-                //       ),
-                //     ),
-                //     IconButton(
-                //       onPressed: () {},
-                //       icon: Icon(
-                //         Icons.notifications_none,
-                //         color: Colors.grey.shade700,
-                //         size: 30,
-                //       ),
-                //     ),
-                //    ],
-                // ),
               ),
-              // Padding(
-              //   padding: EdgeInsets.only(left: 20.0, top: 10.0, right: 10.0),
-              //   child: Row(
-              //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //     children: [
-              //       Text(
-              //         'Recent',
-              //         style:
-              //             TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              //       ),
-              //       TextButton(
-              //           onPressed: () {},
-              //           child: Text(
-              //             'View all',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,color: Colors.white),
-              //           ))
-              //     ],
-              //   ),
-              // ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20.0),
                 child: Container(
@@ -420,9 +429,9 @@ class _HomePageState extends State<HomePage> {
 
   Future<String> _getProfileImage() async {
     String _imageurl = await FirebaseStorage.instance
-        .ref("9810438054/profile")
+        .ref("${widget.contact_number}/profile")
         .getDownloadURL();
-    ProfileImage(_imageurl);
+    // ProfileImage(_imageurl);
     return _imageurl;
   }
 

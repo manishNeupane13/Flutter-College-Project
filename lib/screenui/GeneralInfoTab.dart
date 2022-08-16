@@ -3,6 +3,7 @@ import 'package:homeprofessional/models/gender.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:homeprofessional/screenui/ProfessionalDataTab.dart';
+import 'package:homeprofessional/screenui/DocumentationTab.dart';
 
 class GeneralInfoTab extends StatefulWidget {
   const GeneralInfoTab({Key? key}) : super(key: key);
@@ -322,7 +323,10 @@ class _GeneralInfoTabState extends State<GeneralInfoTab> {
                         border: Border.all(
                             color: Colors.grey.shade700, width: 2.0)),
                     child: TextButton(
-                        onPressed: storeGeneralInfo,
+                        onPressed: () {
+                          storeGeneralInfo();
+                          _askProfressionalProfilePermission();
+                        },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -402,23 +406,25 @@ class _GeneralInfoTabState extends State<GeneralInfoTab> {
           .collection("Personal Information")
           .doc(number)
           .set({
-            "User Name": user_name,
-            "Contact Number": number,
-            "Date of Birth": dob,
-            "Gender": gender_val
-          })
-          .then((value) => Fluttertoast.showToast(
-              msg: "Information Storage Sucessfull.",
-              backgroundColor: Colors.teal,
-              textColor: Colors.white,
-              gravity: ToastGravity.BOTTOM,
-              fontSize: 12))
-          .onError((error, stackTrace) => Fluttertoast.showToast(
-              msg: "Information Storage UnSucessfull.",
-              backgroundColor: Colors.teal,
-              textColor: Colors.white,
-              gravity: ToastGravity.BOTTOM,
-              fontSize: 12));
+        "User Name": user_name,
+        "Contact Number": number,
+        "Date of Birth": dob,
+        "Gender": gender_val
+      }).then((value) {
+        Fluttertoast.showToast(
+            msg: "Information Storage Sucessfull.",
+            backgroundColor: Colors.teal,
+            textColor: Colors.white,
+            gravity: ToastGravity.BOTTOM,
+            fontSize: 12);
+      }).onError((error, stackTrace) {
+        Fluttertoast.showToast(
+            msg: "Information Storage UnSucessfull.",
+            backgroundColor: Colors.teal,
+            textColor: Colors.white,
+            gravity: ToastGravity.BOTTOM,
+            fontSize: 12);
+      });
       // storing address
     } else {
       Fluttertoast.showToast(
@@ -448,11 +454,6 @@ class _GeneralInfoTabState extends State<GeneralInfoTab> {
             textColor: Colors.white,
             gravity: ToastGravity.BOTTOM,
             fontSize: 12);
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    ProfessionalDataTab(contact_number: number)));
       }).onError((error, stackTrace) {
         Fluttertoast.showToast(
             msg: "Information Storage UnSucessfull.",
@@ -469,5 +470,51 @@ class _GeneralInfoTabState extends State<GeneralInfoTab> {
           gravity: ToastGravity.BOTTOM,
           fontSize: 12);
     }
+  }
+
+  Future<void> _askProfressionalProfilePermission() async {
+    return showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              "Do you want to create Professional Profile?",
+              style: TextStyle(
+                  color: Colors.red, fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            content: SingleChildScrollView(
+              child: ListBody(children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    FloatingActionButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ProfessionalDataTab(
+                                    contact_number:
+                                        _userNumber.text.trim().toString())));
+                      },
+                      child: const Text("YES"),
+                    ),
+                    FloatingActionButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => DocumentationTab(
+                                    contact_number:
+                                        _userNumber.text.trim().toString())));
+                      },
+                      child: const Text("No"),
+                    )
+                  ],
+                )
+              ]),
+            ),
+          );
+        });
   }
 }

@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:homeprofessional/screenui/homePage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -14,11 +14,29 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final contact_number = TextEditingController();
+  final _phone_number = TextEditingController();
+  bool haveaccount = false;
+  @override
+  void initState() {
+    super.initState();
+    //   FirebaseFirestore.instance
+    //     .collection("Professional Information")
+    //     .doc(_phone_number.text)
+    //     .get()
+    //     .then((value) {
+    //   value.exists
+    //       ? haveaccount = true
+    //       : haveaccount = false;
+
+    //   print(value.exists);
+    // });
+  }
+
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+    _phone_number.dispose();
     super.dispose();
   }
 
@@ -48,7 +66,7 @@ class _LoginPageState extends State<LoginPage> {
                             TextField(
                               style: TextStyle(color: Colors.black),
                               keyboardType: TextInputType.phone,
-                              controller: contact_number,
+                              controller: _phone_number,
                               decoration: InputDecoration(
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
@@ -88,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                               height: 30,
                             ),
                             TextField(
-                              keyboardType: TextInputType.number,
+                              // keyboardType: TextInputType.number,
                               controller: passwordController,
                               style: TextStyle(),
                               obscureText: true,
@@ -118,7 +136,7 @@ class _LoginPageState extends State<LoginPage> {
                                   backgroundColor: Color(0xff4c505b),
                                   child: IconButton(
                                       color: Colors.white,
-                                      onPressed: verifyPhoneNumber,
+                                      onPressed: SignIn,
                                       icon: Icon(
                                         Icons.arrow_forward,
                                       )),
@@ -204,55 +222,18 @@ class _LoginPageState extends State<LoginPage> {
           fontSize: 12);
     }
   }
-
-  verifyPhoneNumber() async {
-    FirebaseAuth auth = FirebaseAuth.instance;
-    if (contact_number.text.isNotEmpty && passwordController.text.isNotEmpty) {
-      await auth.verifyPhoneNumber(
-        phoneNumber: '+44 7123 123 456',
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          await auth.signInWithCredential(credential);
-          Fluttertoast.showToast(
-              msg: "You are logged in sucessfully",
-              backgroundColor: Colors.teal,
-              textColor: Colors.white,
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              fontSize: 12);
-        },
-        verificationFailed: (FirebaseAuthException e) {
-          if (e.code == 'invalid-phone-number') {
-            Fluttertoast.showToast(
-                msg: "The provided phone number is not valid.",
-                backgroundColor: Colors.teal,
-                textColor: Colors.white,
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                fontSize: 12);
-          }
-        },
-        codeSent: (String verificationId, int? resendToken) async {
-          // String smsCode = '123456';
-
-          // Create a PhoneAuthCredential with the code
-          PhoneAuthCredential credential = PhoneAuthProvider.credential(
-              verificationId: verificationId,
-              smsCode: passwordController.text.trim());
-
-          // Sign the user in (or link) with the credential
-          await auth.signInWithCredential(credential);
-        },
-        timeout: const Duration(seconds: 60),
-        codeAutoRetrievalTimeout: (String verificationId) {},
-      );
-    }
-  }
-  // void verifyOTP() async{
-  //   PhoneAuthCredential credential PhoneAuthProvider.credential(verificationId: verificationID, smsCode: passwordController.text.trim())
-  // }
+//  verifyOTP()
+//  async {
+//  await FirebaseAuth.instance.signInWithCredential(
+//   PhoneAuthProvider.credential(verificationId: , smsCode:passwordController.text)
+//  ).whenComplete(()
+//  {
+//   print("sucess");
+//  });
+//  }
 
   SignIn() {
-    if (contact_number.text.isNotEmpty &&
+    if (_phone_number.text.isNotEmpty &&
         emailController.text.isNotEmpty &&
         passwordController.text.isNotEmpty) {
       FirebaseAuth.instance
@@ -268,12 +249,23 @@ class _LoginPageState extends State<LoginPage> {
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
             fontSize: 12);
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const HomePage(
-                      haveaccount: false,
-                    )));
+
+        FirebaseFirestore.instance
+            .collection("Personal Information")
+            .doc(_phone_number.text.trim().toString())
+            .get()
+            .then((value) {
+          value.exists ? haveaccount = true : haveaccount = false;
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => HomePage(
+                        haveaccount: haveaccount,
+                        contact_number: _phone_number.text,
+                      )));
+
+          print(value.exists);
+        });
       }).onError((error, stackTrace) {
         print(error.toString());
         Fluttertoast.showToast(
@@ -301,7 +293,7 @@ class _LoginPageState extends State<LoginPage> {
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
             fontSize: 12);
-      } else if (contact_number.text.isEmpty) {
+      } else if (_phone_number.text.isEmpty) {
         Fluttertoast.showToast(
             msg: "Phone Number Required",
             backgroundColor: Colors.teal,

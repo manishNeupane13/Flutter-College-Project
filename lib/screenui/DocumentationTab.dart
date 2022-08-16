@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:homeprofessional/screenui/homePage.dart';
 
 class DocumentationTab extends StatefulWidget {
   final contact_number;
@@ -201,16 +202,14 @@ class _DocumentationTabState extends State<DocumentationTab> {
           print(identity_image_file);
         }
       });
-    }
-  else
-  {
- Fluttertoast.showToast(
+    } else {
+      Fluttertoast.showToast(
           msg: "Select Images",
           backgroundColor: Colors.teal,
           textColor: Colors.white,
           gravity: ToastGravity.BOTTOM,
           fontSize: 12);
-  }
+    }
   }
 
   Future upLoadToFirebase() async {
@@ -221,29 +220,28 @@ class _DocumentationTabState extends State<DocumentationTab> {
       try {
         FirebaseStorage.instance
             .ref(profile_destination)
-            .putFile(profile_image_file!).then((p0) 
-            {
-               Fluttertoast.showToast(
+            .putFile(profile_image_file!)
+            .then((p0) {
+          Fluttertoast.showToast(
               msg: "Picture Uploading Sucessfull.",
               backgroundColor: Colors.teal,
               textColor: Colors.white,
               gravity: ToastGravity.BOTTOM,
               fontSize: 12);
-            });
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => HomePage(haveaccount:true,contact_number:widget.contact_number)));
+        });
         FirebaseStorage.instance
             .ref(identity_destination)
-            .putFile(identity_image_file!).then((p0) 
-            {
-
-             Fluttertoast.showToast(
-            msg: "Picture Uploading Sucessfull.",
-            backgroundColor: Colors.teal,
-            textColor: Colors.white,
-            gravity: ToastGravity.BOTTOM,
-            fontSize: 12);
-            }
-            );
-       
+            .putFile(identity_image_file!)
+            .then((p0) {
+          Fluttertoast.showToast(
+              msg: "Picture Uploading Sucessfull.",
+              backgroundColor: Colors.teal,
+              textColor: Colors.white,
+              gravity: ToastGravity.BOTTOM,
+              fontSize: 12);
+        });
       } catch (e) {
         Fluttertoast.showToast(
             msg: "Picture Uploading UnSucessfull.",
