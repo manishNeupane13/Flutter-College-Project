@@ -194,17 +194,41 @@ class _ProfessionalDataTabState extends State<ProfessionalDataTab> {
           ),
         ));
   }
-  storeProfessionalInfo()
-  {
-     final location_name = _serviceLocation.toString();
+
+  storeProfessionalInfo() {
+    final location_name = _serviceLocation.toString();
     final experience_year = _experienceYear.text.trim();
     final service_price = _servicePrice.text.trim();
     final service_provided = _serviceProvided.toString();
-    print('$location_name,$experience_year,$service_provided,$service_price');
+    // print('$location_name,$experience_year,$service_provided,$service_price');
     if (location_name.isNotEmpty &&
         experience_year.isNotEmpty &&
         service_price.isNotEmpty &&
         service_provided.isNotEmpty) {
+      print(widget.contact_number);
+      FirebaseFirestore.instance
+          .collection("Personal Information")
+          .doc(widget.contact_number)
+          .get()
+          .then((value) {
+        var data = value.data();
+        // print(data!['User Name']);
+
+        FirebaseFirestore.instance
+            .collection(service_provided)
+            .doc(widget.contact_number)
+            .set({
+          "User Name": data!['User Name'],
+          "Contact Number": data["Contact Number"],
+          "Gender": data["Gender"],
+          'Service Type': service_provided,
+          "Location": location_name,
+          "Price": service_price,
+          "Experience": experience_year,
+        }).onError((error, stackTrace) {
+          print(error);
+        });
+      });
       FirebaseFirestore.instance
           .collection("Professional Information")
           .doc(widget.contact_number)
@@ -236,6 +260,5 @@ class _ProfessionalDataTabState extends State<ProfessionalDataTab> {
           gravity: ToastGravity.BOTTOM,
           fontSize: 12);
     }
-
   }
 }

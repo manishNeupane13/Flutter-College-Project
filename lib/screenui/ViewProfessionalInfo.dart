@@ -18,7 +18,7 @@ class ViewProfessionalInfo extends StatefulWidget {
 class _ViewProfessionalInfoState extends State<ViewProfessionalInfo> {
   final _servicePrice = TextEditingController();
   final _experienceYear = TextEditingController();
-  
+
   List<String> cities = [
     'New Baneshowr',
     'Koteshwor',
@@ -123,14 +123,14 @@ class _ViewProfessionalInfoState extends State<ViewProfessionalInfo> {
                     .snapshots(),
                 builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
                   if (snapshot.hasError) {
-                    print(snapshot);
+                    // print(snapshot);
                     return const Text("Something went wrong");
                   }
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Text("Loading");
                   }
                   if (snapshot.hasData) {
-                    print(snapshot.data!);
+                    // print(snapshot.data!);
                     return ListView.builder(
                         itemCount: 1,
                         itemBuilder: ((context, index) {
@@ -344,7 +344,7 @@ class _ViewProfessionalInfoState extends State<ViewProfessionalInfo> {
                             return Text("Loading");
                           }
                           if (snapshot.hasData) {
-                            print(snapshot.data!);
+                            // print(snapshot.data!);
                             return ListView.builder(
                                 itemCount: 1,
                                 itemBuilder: ((context, index) {
@@ -603,7 +603,6 @@ class _ViewProfessionalInfoState extends State<ViewProfessionalInfo> {
                                                         documentSnapshot);
                                                     // _createProfessionaAccount(
                                                     //     widget.contact_number);
-                                                  
                                                   },
                                                   child: Text(
                                                     'Delete Professional Profile',
@@ -625,9 +624,8 @@ class _ViewProfessionalInfoState extends State<ViewProfessionalInfo> {
                         },
                       )
                     : _createProfessionaAccount(widget.contact_number)
-                    // Text("No Data Found")
-                    )
-                    ,
+                // Text("No Data Found")
+                ),
             Container(),
           ]),
         ));
@@ -729,7 +727,6 @@ class _ViewProfessionalInfoState extends State<ViewProfessionalInfo> {
                 ElevatedButton(
                   child: const Text('Update'),
                   onPressed: () async {
-                    
                     if (_priceController.text.trim() != null) {
                       await _databaseRef
                           .collection("Professional Information")
@@ -751,11 +748,19 @@ class _ViewProfessionalInfoState extends State<ViewProfessionalInfo> {
 
   Future<void> _deleteProfessionaAccount(
       DocumentSnapshot? documentSnapshot) async {
+    Map<String, dynamic> data =
+        documentSnapshot?.data()! as Map<String, dynamic>;
+    
     await _databaseRef
         .collection("Professional Information")
         .doc(documentSnapshot!.id)
         .delete()
-        .then((value) {
+        .then((value)  async {
+      await FirebaseFirestore.instance
+          .collection(data['Service Type'])
+          .doc(documentSnapshot.id)
+          .delete();
+
       Fluttertoast.showToast(
           msg: "Professional profile deletion sucessfull",
           backgroundColor: Colors.teal,
@@ -765,8 +770,8 @@ class _ViewProfessionalInfoState extends State<ViewProfessionalInfo> {
       Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) =>HomePage(haveaccount: true, contact_number: widget.contact_number)));
-    
+              builder: (context) => HomePage(
+                  haveaccount: true, contact_number: widget.contact_number)));
     }).onError((error, stackTrace) {
       Fluttertoast.showToast(
           msg: "Professional profile deletion unsucessfull",
@@ -955,11 +960,37 @@ class _ViewProfessionalInfoState extends State<ViewProfessionalInfo> {
     final experience_year = _experienceYear.text.trim();
     final service_price = _servicePrice.text.trim();
     final service_provided = _serviceProvided.toString();
-    print('$location_name,$experience_year,$service_provided,$service_price');
+    // print('$location_name,$experience_year,$service_provided,$service_price');
     if (location_name.isNotEmpty &&
         experience_year.isNotEmpty &&
         service_price.isNotEmpty &&
         service_provided.isNotEmpty) {
+      // print(widget.contact_number);
+      FirebaseFirestore.instance
+          .collection("Personal Information")
+          .doc(widget.contact_number)
+          .get()
+          .then((value) {
+        var data = value.data();
+        // print(data);
+
+        FirebaseFirestore.instance
+            .collection(service_provided)
+            .doc(widget.contact_number)
+            .set({
+              "User Name": data!['User Name'],
+              "Contact Number": data["Contact Number"],
+              "Gender": data["Gender"],
+              'Service Type': service_provided,
+              "Location": location_name,
+              "Price": service_price,
+              "Experience": experience_year,
+            })
+            .then((value) {})
+            .onError((error, stackTrace) {
+              print(error);
+            });
+      });
       FirebaseFirestore.instance
           .collection("Professional Information")
           .doc(widget.contact_number)

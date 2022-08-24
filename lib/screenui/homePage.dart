@@ -93,30 +93,27 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.teal,
         automaticallyImplyLeading: false,
         actions: [
-
-        
-        
-         Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(vertical:1,horizontal: 5),
-                child: IconButton(
-                  onPressed: () {
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const LoginPage()),
-                        (route) => false);
-                  },
-                  icon: Icon(
-                    Icons.logout_sharp,
-                    color: Colors.deepOrange,
+          Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 1, horizontal: 5),
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginPage()),
+                          (route) => false);
+                    },
+                    icon: Icon(
+                      Icons.logout_sharp,
+                      color: Colors.deepOrange,
+                    ),
                   ),
                 ),
-              ),
-            ]),
+              ]),
         ],
       ),
       body: SingleChildScrollView(
