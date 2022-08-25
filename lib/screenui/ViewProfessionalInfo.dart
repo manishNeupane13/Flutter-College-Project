@@ -339,6 +339,14 @@ class _ViewProfessionalInfoState extends State<ViewProfessionalInfo> {
                             // print(snapshot);
                             return const Text("Something went wrong");
                           }
+                          if (!snapshot.data!.exists) {
+                            return Center(
+                                child: Text(
+                              "No Data Found",
+                              style: TextStyle(
+                                  fontSize: 18, color: Colors.redAccent),
+                            ));
+                          }
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return Text("Loading");
@@ -350,9 +358,9 @@ class _ViewProfessionalInfoState extends State<ViewProfessionalInfo> {
                                 itemBuilder: ((context, index) {
                                   final DocumentSnapshot documentSnapshot =
                                       snapshot.data!;
-
                                   Map<String, dynamic> data = documentSnapshot
                                       .data()! as Map<String, dynamic>;
+
                                   // print('document,${documentSnapshot.get(Key).toString()}');
                                   return Container(
                                     padding: EdgeInsets.all(5.0),
@@ -617,6 +625,13 @@ class _ViewProfessionalInfoState extends State<ViewProfessionalInfo> {
                                     ),
                                   );
                                 }));
+                          } else {
+                            return Center(
+                                child: Text(
+                              "No data Found",
+                              style: TextStyle(
+                                  fontSize: 18, color: Colors.redAccent),
+                            ));
                           }
                           return const Center(
                             child: CircularProgressIndicator(),
@@ -750,12 +765,12 @@ class _ViewProfessionalInfoState extends State<ViewProfessionalInfo> {
       DocumentSnapshot? documentSnapshot) async {
     Map<String, dynamic> data =
         documentSnapshot?.data()! as Map<String, dynamic>;
-    
+
     await _databaseRef
         .collection("Professional Information")
         .doc(documentSnapshot!.id)
         .delete()
-        .then((value)  async {
+        .then((value) async {
       await FirebaseFirestore.instance
           .collection(data['Service Type'])
           .doc(documentSnapshot.id)
